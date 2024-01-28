@@ -13,29 +13,54 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "query Pokemons($showFavorite: Boolean! = false) {\n  pokemons(query: {filter: {isFavorite: $showFavorite}, limit: 10}) {\n    edges {\n      id\n      name\n    }\n  }\n}": types.PokemonsDocument,
+    "\n  fragment LikeHeart on Pokemon {\n    isFavorite\n  }\n": types.LikeHeartFragmentDoc,
+    "\n  mutation Favorite($pokemonId: ID!) {\n    favoritePokemon(id: $pokemonId) {\n      id\n      isFavorite\n    }\n  }\n": types.FavoriteDocument,
+    "\n  mutation unFavorite($pokemonId: ID!) {\n    unFavoritePokemon(id: $pokemonId) {\n      id\n      isFavorite\n    }\n  }\n": types.UnFavoriteDocument,
+    "\n  fragment PokemonCard on Pokemon {\n    id\n    image\n    name\n    types\n    ...LikeHeart\n  }\n  \n": types.PokemonCardFragmentDoc,
+    "\n  query GetPokemons($onlyFavorites: Boolean, $type: String, $search: String, $limit: Int, $offset: Int) {\n    pokemons(query: {\n      filter: {\n        isFavorite: $onlyFavorites,\n        type: $type\n      },\n      search: $search,\n      limit: $limit,\n      offset: $offset\n    }) {\n      edges {\n        id\n        isFavorite\n        ...PokemonCard\n      }\n      count\n    }\n  }\n  \n": types.GetPokemonsDocument,
+    "\n  query GetPokemonTypes {\n    pokemonTypes\n  }\n": types.GetPokemonTypesDocument,
 };
 
 /**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  *
  *
  * @example
  * ```ts
- * const query = gql(`query GetUser($id: ID!) { user(id: $id) { name } }`);
+ * const query = graphql(`query GetUser($id: ID!) { user(id: $id) { name } }`);
  * ```
  *
  * The query argument is unknown!
  * Please regenerate the types.
  */
-export function gql(source: string): unknown;
+export function graphql(source: string): unknown;
 
 /**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "query Pokemons($showFavorite: Boolean! = false) {\n  pokemons(query: {filter: {isFavorite: $showFavorite}, limit: 10}) {\n    edges {\n      id\n      name\n    }\n  }\n}"): (typeof documents)["query Pokemons($showFavorite: Boolean! = false) {\n  pokemons(query: {filter: {isFavorite: $showFavorite}, limit: 10}) {\n    edges {\n      id\n      name\n    }\n  }\n}"];
+export function graphql(source: "\n  fragment LikeHeart on Pokemon {\n    isFavorite\n  }\n"): (typeof documents)["\n  fragment LikeHeart on Pokemon {\n    isFavorite\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation Favorite($pokemonId: ID!) {\n    favoritePokemon(id: $pokemonId) {\n      id\n      isFavorite\n    }\n  }\n"): (typeof documents)["\n  mutation Favorite($pokemonId: ID!) {\n    favoritePokemon(id: $pokemonId) {\n      id\n      isFavorite\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation unFavorite($pokemonId: ID!) {\n    unFavoritePokemon(id: $pokemonId) {\n      id\n      isFavorite\n    }\n  }\n"): (typeof documents)["\n  mutation unFavorite($pokemonId: ID!) {\n    unFavoritePokemon(id: $pokemonId) {\n      id\n      isFavorite\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  fragment PokemonCard on Pokemon {\n    id\n    image\n    name\n    types\n    ...LikeHeart\n  }\n  \n"): (typeof documents)["\n  fragment PokemonCard on Pokemon {\n    id\n    image\n    name\n    types\n    ...LikeHeart\n  }\n  \n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetPokemons($onlyFavorites: Boolean, $type: String, $search: String, $limit: Int, $offset: Int) {\n    pokemons(query: {\n      filter: {\n        isFavorite: $onlyFavorites,\n        type: $type\n      },\n      search: $search,\n      limit: $limit,\n      offset: $offset\n    }) {\n      edges {\n        id\n        isFavorite\n        ...PokemonCard\n      }\n      count\n    }\n  }\n  \n"): (typeof documents)["\n  query GetPokemons($onlyFavorites: Boolean, $type: String, $search: String, $limit: Int, $offset: Int) {\n    pokemons(query: {\n      filter: {\n        isFavorite: $onlyFavorites,\n        type: $type\n      },\n      search: $search,\n      limit: $limit,\n      offset: $offset\n    }) {\n      edges {\n        id\n        isFavorite\n        ...PokemonCard\n      }\n      count\n    }\n  }\n  \n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetPokemonTypes {\n    pokemonTypes\n  }\n"): (typeof documents)["\n  query GetPokemonTypes {\n    pokemonTypes\n  }\n"];
 
-export function gql(source: string) {
+export function graphql(source: string) {
   return (documents as any)[source] ?? {};
 }
 

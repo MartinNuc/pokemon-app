@@ -8,7 +8,6 @@ import {
   SSRMultipartLink,
 } from "@apollo/experimental-nextjs-app-support/ssr";
 
-// have a function to create a client for you
 function makeClient() {
   const httpLink = new HttpLink({
     // this needs to be an absolute url, as relative urls cannot be used in SSR
@@ -24,23 +23,39 @@ function makeClient() {
 
   return new NextSSRApolloClient({
     // use the `NextSSRInMemoryCache`, not the normal `InMemoryCache`
-    cache: new NextSSRInMemoryCache(),
+    cache: new NextSSRInMemoryCache({
+      // typePolicies: {
+      //   Query: {
+      //     fields: {
+      //       pokemons: {
+      //         keyArgs: [],
+      //         merge(existing, incoming) {
+      //           if (!existing) { return incoming; }
+
+      //           const merged = { ...existing, ...incoming };
+      //           merged.edges = [...existing.edges, ...incoming.edges]
+      //           return merged;
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
+    }),
     link:
       typeof window === "undefined"
         ? ApolloLink.from([
-            // in a SSR environment, if you use multipart features like
-            // @defer, you need to decide how to handle these.
-            // This strips all interfaces with a `@defer` directive from your queries.
-            new SSRMultipartLink({
-              stripDefer: true,
-            }),
-            httpLink,
-          ])
+          // in a SSR environment, if you use multipart features like
+          // @defer, you need to decide how to handle these.
+          // This strips all interfaces with a `@defer` directive from your queries.
+          new SSRMultipartLink({
+            stripDefer: true,
+          }),
+          httpLink,
+        ])
         : httpLink,
   });
 }
 
-// you need to create a component to wrap your app in
 export function ApolloProvider({ children }: React.PropsWithChildren) {
   return (
     <ApolloNextAppProvider makeClient={makeClient}>
