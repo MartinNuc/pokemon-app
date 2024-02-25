@@ -4,10 +4,13 @@ import { gql, useSuspenseQuery } from "@apollo/client";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { PokemonCard } from "./pokemon-card";
+import useVirtual, { LoadMoreEvent } from "react-cool-virtual";
 
 type Props = {
   onlyFavorites: boolean;
 }
+
+const POKEMON_PAGE_SIZE = 10;
 
 export const resultsQuery = gql`
   query GetPokemons($onlyFavorites: Boolean, $type: String, $search: String, $limit: Int, $offset: Int) {
@@ -38,10 +41,10 @@ export function Results({ onlyFavorites }: Props) {
     onlyFavorites,
     type: searchParams.get('type'),
     search: searchParams.get('search'),
-    limit: 10,
+    limit: POKEMON_PAGE_SIZE,
   }), [onlyFavorites, searchParams.get('type'), searchParams.get('search')]);
 
-  const { data: { pokemons }, fetchMore, refetch } = useSuspenseQuery<GetPokemonsQuery>(resultsQuery, {
+  const { data: { pokemons }, fetchMore, error, refetch } = useSuspenseQuery<GetPokemonsQuery>(resultsQuery, {
     variables: {
       ...pokemonQueryVariables,
       offset: 0,
@@ -52,31 +55,54 @@ export function Results({ onlyFavorites }: Props) {
     refetch(pokemonQueryVariables);
   }, [pokemonQueryVariables]);
 
-  const hasMore = pokemons.count > pokemons.edges.length;
+  const isBatchLoaded = useMemo(() => new Set<number>([0]), []);
+  const { outerRef, innerRef, items } = useVirtual({
+    itemCount: pokemons.count,
+    isItemLoaded: (loadIndex) =>  isBatchLoaded.has(loadIndex),
+    loadMore,
+    loadMoreCount: POKEMON_PAGE_SIZE
+  });
 
-  function handleLoadMore() {
-    fetchMore({
-      variables: {
-        ...pokemonQueryVariables,
-        offset: pokemons.edges.length,
-      },
-      updateQuery: (previousResult, { fetchMoreResult }) => {
-        const newEntries = fetchMoreResult.pokemons.edges;
-        return {
-          pokemons: {
-            count: previousResult.pokemons.count + fetchMoreResult.pokemons.count,
-            edges: [...previousResult.pokemons.edges, ...newEntries],
-          }
-        };
-      },
-    });
+  async function loadMore({ loadIndex, startIndex, stopIndex }: LoadMoreEvent) {
+    isBatchLoaded.add(loadIndex);
+    try {
+      return fetchMore({
+        variables: {
+          ...pokemonQueryVariables,
+          offset: startIndex,
+          limit: stopIndex - startIndex + 1,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          const newEntries = fetchMoreResult.pokemons.edges;
+          return {
+            pokemons: {
+              ...previousResult.pokemons,
+              edges: [...previousResult.pokemons.edges, ...newEntries],
+            }
+          };
+        },
+      });
+    } catch (e) {
+      isBatchLoaded.delete(loadIndex);
+    }
   }
 
-  return <ul>
-    {pokemons.edges
-      // due to client-side updates to favorite field there could be a pokemon which is in the cache but is not favorite anymore
-      .filter(pokemon => !onlyFavorites || pokemon.isFavorite)
-      .map(pokemon => <PokemonCard key={pokemon.id} pokemonId={pokemon.id} />)}
-    {hasMore && <button onClick={handleLoadMore}>next page</button>}
-  </ul>
+  const hasMore = pokemons.count > pokemons.edges.length;
+
+  return <div
+    style={{ height: "100vh", overflow: "auto" }}
+    ref={outerRef}
+  >
+    <div ref={innerRef}>
+      <ul>
+        {items
+          .map(({ index, measureRef }) => ({ pokemon: pokemons.edges[index], measureRef }))
+          .filter(({ pokemon }) => pokemon)
+          // due to client-side updates to favorite field there could be a pokemon which is in the cache but is not favorite anymore
+          .filter(({ pokemon }) => !onlyFavorites || pokemon.isFavorite)
+          .map(({ pokemon, measureRef }) => <li key={pokemon.id} ref={measureRef}><PokemonCard pokemonId={pokemon.id} /></li>)}
+        {hasMore && <div>Loading...</div>}
+      </ul>
+    </div>
+  </div>
 }
