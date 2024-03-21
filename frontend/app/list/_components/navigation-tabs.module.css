@@ -1,0 +1,19 @@
+.tabs {
+  display: flex;
+  justify-content: space-evenly;
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex-grow: 1;
+  padding: 5px;
+  border: 1px solid #73c1a2;
+  cursor: pointer;
+  color: #73c1a2;
+  text-align: center;
+}
+
+.active {
+  background-color: #73c1a2;
+  color: white;
+}

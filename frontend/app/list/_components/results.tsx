@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { PokemonCard } from "./pokemon-card";
 import useVirtual, { LoadMoreEvent } from "react-cool-virtual";
+import styles from "./results.module.css";
 
 type Props = {
   onlyFavorites: boolean;
@@ -56,9 +57,9 @@ export function Results({ onlyFavorites }: Props) {
   }, [pokemonQueryVariables]);
 
   const isBatchLoaded = useMemo(() => new Set<number>([0]), []);
-  const { outerRef, innerRef, items } = useVirtual({
+  const { outerRef, innerRef, items } = useVirtual<HTMLDivElement>({
     itemCount: pokemons.count,
-    isItemLoaded: (loadIndex) =>  isBatchLoaded.has(loadIndex),
+    isItemLoaded: (loadIndex) => isBatchLoaded.has(loadIndex),
     loadMore,
     loadMoreCount: POKEMON_PAGE_SIZE
   });
@@ -87,21 +88,18 @@ export function Results({ onlyFavorites }: Props) {
     }
   }
 
-  const hasMore = pokemons.count > pokemons.edges.length;
-
   return <div
     style={{ height: "100vh", overflow: "auto" }}
     ref={outerRef}
   >
     <div ref={innerRef}>
-      <ul>
+      <ul className={styles.list}>
         {items
           .map(({ index, measureRef }) => ({ pokemon: pokemons.edges[index], measureRef }))
           .filter(({ pokemon }) => pokemon)
           // due to client-side updates to favorite field there could be a pokemon which is in the cache but is not favorite anymore
           .filter(({ pokemon }) => !onlyFavorites || pokemon.isFavorite)
-          .map(({ pokemon, measureRef }) => <li key={pokemon.id} ref={measureRef}><PokemonCard pokemonId={pokemon.id} /></li>)}
-        {hasMore && <div>Loading...</div>}
+          .map(({ pokemon, measureRef }) => <li className={styles['list-item']} key={pokemon.id} ref={measureRef}><PokemonCard pokemonId={pokemon.id} /></li>)}
       </ul>
     </div>
   </div>

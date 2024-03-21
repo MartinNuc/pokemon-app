@@ -3,6 +3,7 @@
 import { GetPokemonTypesQuery } from "@/app/__generated__/graphql";
 import { gql, useSuspenseQuery } from "@apollo/client";
 import { useValueInQueryParam } from "../_hooks/use-value-in-query-param";
+import styles from "./type-filter.module.css";
 
 const query = gql`
   query GetPokemonTypes {
@@ -16,7 +17,7 @@ export function TypeFilter() {
   const { data: { pokemonTypes } } = useSuspenseQuery<GetPokemonTypesQuery>(query);
 
   return (
-    <select value={type} onChange={(e) => setType(e.target.value)}>
+    <select className={styles['type-dropdown']} value={type} onChange={(e) => setType(e.target.value)}>
       <option value="">All types</option>
       {pokemonTypes.map(type => <option key={type} value={type}>{type}</option>)}
     </select >

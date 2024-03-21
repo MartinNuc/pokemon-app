@@ -1,0 +1,12 @@
+.type-dropdown {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #eee;
+  background-color: #eee;
+  cursor: pointer;
+}
+
+.type-dropdown:focus {
+  border-color: #73c1a2;
+  outline: none;
+}

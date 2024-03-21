@@ -1,0 +1,8 @@
+.separator {
+  width: 2px;
+  background-color: #eee;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 1px;
+  padding: 0;
+}

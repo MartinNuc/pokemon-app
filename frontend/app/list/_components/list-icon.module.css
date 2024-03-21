@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  width: 30px;
+  height: 30px;
+}
+
+.box {
+  height: 3px;
+  margin: 1px;
+  background-color: #73c1a2;
+  padding: 0;
+}

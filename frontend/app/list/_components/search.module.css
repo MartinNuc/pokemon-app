@@ -1,0 +1,12 @@
+.search {
+  flex-grow: 2;
+  padding: 10px;
+  border: 1px solid #eee;
+  margin-right: 10px;
+  background-color: #eee;
+}
+
+.search:focus {
+  border-color: #73c1a2;
+  outline: none;
+}

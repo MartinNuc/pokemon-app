@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useValueInQueryParam } from "../_hooks/use-value-in-query-param";
+import styles from "./search.module.css";
 
 export function Search() {
   const [search, setSearch] = useValueInQueryParam('search');
@@ -16,5 +17,5 @@ export function Search() {
     return () => clearTimeout(timeoutRef);
   }, [inputValue]);
 
-  return <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
+  return <input className={styles.search} placeholder="Search" value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
 }
